@@ -1,0 +1,16 @@
+{
+  "name": "moving-sale",
+  "version": "1.0.0",
+  "description": "Interactive storefront for the Cambridge moving sale",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

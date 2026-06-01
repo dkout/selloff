@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moving Sale — Cambridge</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="brand">
+        <span class="brand-mark">●</span>
+        <span class="brand-text" id="brand-text">Moving Sale</span>
+      </div>
+      <button class="cart-btn" id="cart-btn" aria-label="Open cart">
+        <span>Cart</span>
+        <span class="cart-count" id="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <h1 id="hero-title">Moving Sale</h1>
+      <p class="hero-sub" id="hero-sub">Cambridge — pick up by June 15</p>
+      <div class="hero-lot" id="hero-lot"></div>
+      <button class="hero-lot-btn" id="take-all-btn"></button>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div class="filters">
+      <input id="search" type="search" placeholder="Search items…" autocomplete="off" />
+      <label class="toggle">
+        <input type="checkbox" id="hide-sold" checked />
+        <span>Hide sold</span>
+      </label>
+    </div>
+    <div id="categories" class="categories"></div>
+  </main>
+
+  <aside class="cart-drawer" id="cart-drawer" aria-hidden="true">
+    <div class="cart-head">
+      <h2>Your cart</h2>
+      <button class="icon-btn" id="cart-close" aria-label="Close">✕</button>
+    </div>
+    <div class="cart-body" id="cart-body"></div>
+    <div class="cart-foot">
+      <div class="cart-savings" id="cart-savings"></div>
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cart-total">$0</span>
+      </div>
+      <button class="primary" id="checkout-btn" disabled>Request to purchase</button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <dialog id="checkout-dialog" class="dialog">
+    <form id="checkout-form" method="dialog">
+      <h2>Request to purchase</h2>
+      <p class="muted">Your request goes to the seller for approval. You'll be contacted to arrange pickup.</p>
+      <label>Your name<input name="name" required autocomplete="name" /></label>
+      <label>Email or phone<input name="contact" required autocomplete="email" /></label>
+      <label>Note (optional)<textarea name="note" rows="2" placeholder="Any details on pickup timing, questions, etc."></textarea></label>
+      <div class="cart-summary" id="dialog-summary"></div>
+      <div class="dialog-actions">
+        <button type="button" class="ghost" id="cancel-checkout">Cancel</button>
+        <button type="submit" class="primary">Submit request</button>
+      </div>
+      <div class="form-error" id="form-error" hidden></div>
+    </form>
+  </dialog>
+
+  <dialog id="success-dialog" class="dialog">
+    <div class="success">
+      <div class="success-mark">✓</div>
+      <h2>Request submitted</h2>
+      <p>The seller will review your request and reach out. The items remain available to others until approved.</p>
+      <button class="primary" id="success-close">Done</button>
+    </div>
+  </dialog>
+
+  <dialog id="item-dialog" class="dialog item-dialog">
+    <button class="icon-btn item-dialog-close" id="item-dialog-close" aria-label="Close">✕</button>
+    <img id="item-dialog-img" alt="" />
+    <div class="item-dialog-body">
+      <div class="muted" id="item-dialog-cat"></div>
+      <h2 id="item-dialog-name"></h2>
+      <div class="item-dialog-price" id="item-dialog-price"></div>
+      <button class="primary" id="item-dialog-add">Add to cart</button>
+    </div>
+  </dialog>
+
+  <footer class="site-foot">
+    <div class="wrap">
+      <span id="foot-loc">303 Third Street, Cambridge</span>
+      <span class="dot">·</span>
+      <a href="/admin.html">Seller login</a>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

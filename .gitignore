@@ -1,0 +1,12 @@
+# dependencies
+node_modules/
+
+# runtime state (created at boot; never commit bids/sold data)
+data/state.json
+data/state.json.tmp
+
+# misc
+*.log
+.DS_Store
+.env
+.env.*

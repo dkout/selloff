@@ -1,0 +1,23 @@
+# Render Blueprint — deploy with: Render dashboard → New → Blueprint → connect this repo.
+# A persistent disk holds data/state.json (bids + sold items) so nothing is lost
+# across deploys/restarts. ADMIN_PASSWORD is NOT in this file — set it in the
+# dashboard (Environment) so the secret never lands in git.
+services:
+  - type: web
+    name: moving-sale
+    env: node
+    plan: starter          # required for a persistent disk (free plan has none)
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/items
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_PASSWORD
+        sync: false          # prompts you to set it in the dashboard
+    disk:
+      name: sale-data
+      mountPath: /var/data
+      sizeGB: 1
