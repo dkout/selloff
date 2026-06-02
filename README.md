@@ -75,8 +75,17 @@ Environment variables:
 | `PORT` | `3000` | HTTP port |
 | `ADMIN_PASSWORD` | `changeme` | Seller login password (compared in constant time) |
 | `DATA_DIR` | `./data` | Where mutable `state.json` is written (point at a persistent disk in prod). The catalog `items.json` always loads from the app directory regardless. |
-| `NODE_ENV` | — | Set to `production` to add the `Secure` flag to the admin cookie (requires HTTPS) |
+| `NODE_ENV` | — | Set to `production` to add the `Secure` flag to the admin cookie (requires HTTPS). **In production the app refuses to start unless `ADMIN_PASSWORD` is set to a non-default value.** |
 | `TRUST_PROXY` | `1` | Proxy hops to trust for client IP (rate limiting). `0` for direct/localhost |
+| `SMTP_URL` | — | SMTP transport URL for new-request email alerts, e.g. `smtps://user:pass@smtp.example.com:465`. If unset, email notifications are off. |
+| `NOTIFY_EMAIL` | — | Where new-request alerts are sent (the seller). Required (with `SMTP_URL`) to enable email. |
+| `NOTIFY_FROM` | `NOTIFY_EMAIL` | From address on alert emails. |
+
+### Email notifications
+
+When `SMTP_URL` **and** `NOTIFY_EMAIL` are both set, the seller gets an email every time a buyer submits a request (buyer name, contact, items, total, and any lot deals applied). Sending is best-effort and fire-and-forget: a mail failure is logged but never blocks or fails the buyer's submission. Leave either var unset to keep notifications off.
+
+Works with any SMTP provider — e.g. a Gmail app password (`smtps://you%40gmail.com:app-password@smtp.gmail.com:465`), SendGrid, Mailgun, Resend's SMTP, etc. URL-encode any special characters in the username/password.
 
 ## Notes on behavior & limits
 

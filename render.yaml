@@ -17,6 +17,15 @@ services:
         value: /var/data
       - key: ADMIN_PASSWORD
         sync: false          # prompts you to set it in the dashboard
+                             # (required in production — the app won't start with the default)
+      # Optional email alerts on new requests. Set all three in the dashboard to
+      # enable; leave unset to keep notifications off.
+      - key: SMTP_URL
+        sync: false          # e.g. smtps://user:pass@smtp.example.com:465
+      - key: NOTIFY_EMAIL
+        sync: false          # seller address that receives new-request alerts
+      - key: NOTIFY_FROM
+        sync: false          # From address (defaults to NOTIFY_EMAIL)
     disk:
       name: sale-data
       mountPath: /var/data

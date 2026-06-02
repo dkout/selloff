@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
@@ -14,6 +15,17 @@ const STATE_DIR = process.env.DATA_DIR || APP_DATA_DIR;
 const STATE_FILE = path.join(STATE_DIR, 'state.json');
 const PROD = process.env.NODE_ENV === 'production';
 const COOKIE_FLAGS = `Path=/; HttpOnly; SameSite=Lax${PROD ? '; Secure' : ''}`;
+
+// Production guard: never run a live deployment with the default/empty admin
+// password — that would leave the seller dashboard wide open. Fail fast at
+// startup instead of silently shipping an insecure default.
+if (PROD && (!process.env.ADMIN_PASSWORD || ADMIN_PASSWORD === 'changeme')) {
+  console.error(
+    'FATAL: ADMIN_PASSWORD must be set to a non-default value when NODE_ENV=production.\n' +
+    '       Set a strong ADMIN_PASSWORD env var (e.g. in your host\'s dashboard) and redeploy.'
+  );
+  process.exit(1);
+}
 
 const items = JSON.parse(fs.readFileSync(ITEMS_FILE, 'utf8'));
 
@@ -70,6 +82,55 @@ for (const cat of items.categories) {
     itemMap.set(it.id, it);
     itemToCategory.set(it.id, cat);
   }
+}
+
+const fmtMoney = n => `$${Number(n).toLocaleString('en-US')}`;
+
+// --- Email notifications (best-effort) ---------------------------------------
+// Enabled only when SMTP_URL and NOTIFY_EMAIL are set; otherwise the app runs
+// exactly as before with notifications off. Sending is fire-and-forget: a mail
+// failure is logged but never blocks or fails a buyer's submission.
+//   SMTP_URL     transport URL, e.g. smtps://user:pass@smtp.example.com:465
+//   NOTIFY_EMAIL where new-request alerts are sent (the seller)
+//   NOTIFY_FROM  From address (defaults to NOTIFY_EMAIL)
+const NOTIFY_TO = process.env.NOTIFY_EMAIL;
+const NOTIFY_FROM = process.env.NOTIFY_FROM || NOTIFY_TO;
+let mailer = null;
+if (process.env.SMTP_URL && NOTIFY_TO) {
+  mailer = nodemailer.createTransport(process.env.SMTP_URL);
+  console.log(`Email notifications ON → ${NOTIFY_TO}`);
+} else {
+  console.log('Email notifications OFF (set SMTP_URL and NOTIFY_EMAIL to enable)');
+}
+
+function notifyNewBid(bid) {
+  if (!mailer) return;
+  const lines = bid.itemIds.map(id => {
+    const it = itemMap.get(id);
+    return it ? `  • ${it.name} — ${fmtMoney(it.price)}` : `  • ${id}`;
+  });
+  const lots = bid.lotsApplied.length
+    ? '\nLot deals applied: ' + bid.lotsApplied.map(l => `${l.label} (${fmtMoney(l.price)})`).join(', ') + '\n'
+    : '';
+  const text =
+`New purchase request — total ${fmtMoney(bid.total)}
+
+From:    ${bid.name}
+Contact: ${bid.contact}
+${bid.note ? `Note:    ${bid.note}\n` : ''}
+Items:
+${lines.join('\n')}
+${lots}
+Open the seller dashboard to approve or decline.
+Request id: ${bid.id}`;
+
+  // Don't await — keep the request fast and never fail the bid on a mail error.
+  mailer.sendMail({
+    from: NOTIFY_FROM,
+    to: NOTIFY_TO,
+    subject: `New request from ${bid.name} — ${fmtMoney(bid.total)}`,
+    text,
+  }).catch(err => console.error('Email notification failed:', err.message));
 }
 
 // Minimum available items for a lot deal to be offered at all.
@@ -222,6 +283,7 @@ app.post('/api/bids', bidLimiter, (req, res) => {
   };
   state.bids.unshift(bid);
   saveState(state);
+  notifyNewBid(bid); // best-effort; never blocks the response
   res.json({ ok: true, bidId: bid.id });
 });
 
