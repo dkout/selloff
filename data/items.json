@@ -5,7 +5,7 @@
     "location": "303 Third Street, Cambridge",
     "pickupBy": "June 15",
     "fullLot": {
-      "price": 3650,
+      "price": 3850,
       "label": "Deal for all items (excluding bikes)",
       "excludeCategoryIds": ["bike-commute", "bike-race"]
     }
@@ -29,7 +29,7 @@
       "image": "03_living_room.jpg",
       "lotPrice": 750,
       "items": [
-        { "id": "lr-sectional", "name": "White L-shaped sectional sofa w/ chaise", "price": 650 },
+        { "id": "lr-sectional", "name": "White L-shaped sectional sofa w/ chaise", "price": 600 },
         { "id": "lr-coffee-table", "name": "Dark wood coffee table w/ lower shelf", "price": 60 },
         { "id": "lr-poang", "name": "Poang armchair", "price": 100 },
         { "id": "lr-mirror", "name": "Standing floor mirror", "price": 50 },
@@ -43,7 +43,7 @@
       "image": "04_counter_bar_stools.jpg",
       "lotPrice": 120,
       "items": [
-        { "id": "bs-stools", "name": "Rustic leather-top bar stool (pair)", "price": 90 },
+        { "id": "bs-stools", "name": "Rustic leather-top bar stool (pair)", "price": 110 },
         { "id": "bs-side-table", "name": "White side / accent table", "price": 25 },
         { "id": "bs-lamp", "name": "Ceramic table lamp", "price": 20 }
       ]
@@ -138,10 +138,10 @@
       "id": "dining",
       "title": "Dining Set",
       "image": "12_dining_set.jpg",
-      "lotPrice": 400,
+      "lotPrice": 700,
       "items": [
-        { "id": "dining-table", "name": "Solid wood dining table, rustic & expandable", "price": 450 },
-        { "id": "dining-chairs", "name": "Metal Tolix-style chair w/ cushion (set of 4)", "price": 100 }
+        { "id": "dining-table", "name": "Solid wood dining table, rustic & expandable", "price": 650 },
+        { "id": "dining-chairs", "name": "Metal Tolix-style chair w/ cushion (set of 4)", "price": 150 }
       ]
     },
     {
