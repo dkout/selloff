@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#1a1a1a"/>
+  <!-- moving box -->
+  <rect x="5" y="10.5" width="15" height="13" rx="1.5" fill="#d9a368"/>
+  <line x1="5" y1="14.5" x2="20" y2="14.5" stroke="#a86f3b" stroke-width="1.3"/>
+  <line x1="12.5" y1="10.5" x2="12.5" y2="23.5" stroke="#a86f3b" stroke-width="1.3"/>
+  <!-- price tag (sale) -->
+  <g transform="translate(17.5 16.5) rotate(40)">
+    <rect x="0" y="0" width="10" height="10" rx="1.8" fill="#b85042"/>
+    <circle cx="2.7" cy="2.7" r="1.25" fill="#fafaf8"/>
+  </g>
+</svg>
