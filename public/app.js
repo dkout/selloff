@@ -36,6 +36,9 @@ function hydrate() {
   document.getElementById('brand-text').textContent = sale.title;
   document.getElementById('hero-title').textContent = sale.title;
   document.getElementById('hero-sub').textContent = `${sale.subtitle}`;
+  const note = document.getElementById('hero-note');
+  if (sale.pickupNote) { note.textContent = sale.pickupNote; note.hidden = false; }
+  else { note.hidden = true; }
   document.getElementById('foot-loc').textContent = sale.location;
 
   try {
@@ -88,7 +91,7 @@ function fullLotState() {
   return { availIds, availSum, price, savings: availSum - price, worth: availIds.length >= MIN_LOT_ITEMS };
 }
 
-// Live countdown to the bundle deadline. Counts down to zero and stays there —
+// Live countdown to the bundle deadline. Counts down to zero and stays there;
 // it's informational only and never changes the deal or pricing.
 function updateCountdown() {
   const el = document.getElementById('package-countdown');
@@ -185,7 +188,7 @@ function render() {
     const anyAvailable = state.data.categories.some(c => c.items.some(i => !i.sold));
     root.innerHTML = `<div class="empty-state">${
       q ? 'No items match your search.'
-        : (anyAvailable ? 'No items to show.' : 'Everything has been sold — thanks for looking!')
+        : (anyAvailable ? 'No items to show.' : 'Everything has been sold. Thanks for looking!')
     }</div>`;
   }
 
@@ -216,6 +219,7 @@ async function renderCart() {
   const totalEl = document.getElementById('cart-total');
   const savingsEl = document.getElementById('cart-savings');
   const checkout = document.getElementById('checkout-btn');
+  document.getElementById('empty-cart').hidden = state.cart.size === 0;
 
   if (state.cart.size === 0) {
     body.innerHTML = '<div class="cart-empty">Your cart is empty.<br/>Browse items and tap <strong>Add</strong>.</div>';
@@ -246,7 +250,7 @@ async function renderCart() {
     if (lot) {
       const sub = lines.reduce((a, b) => a + b.price, 0);
       const save = sub - lot.price;
-      html += `<div class="cart-lot-badge">${lot.label}: <strong>${fmt(lot.price)}</strong> — saved ${fmt(save)}</div>`;
+      html += `<div class="cart-lot-badge">${lot.label}: <strong>${fmt(lot.price)}</strong> · saved ${fmt(save)}</div>`;
       for (const li of lines) {
         html += `<div class="cart-line lot">
           <div class="cart-line-name struck" title="${li.name}">${li.name}</div>
@@ -325,6 +329,13 @@ document.getElementById('take-all-btn').addEventListener('click', toggleTakeAll)
 document.getElementById('cart-btn').addEventListener('click', openCart);
 document.getElementById('cart-close').addEventListener('click', closeCart);
 document.getElementById('scrim').addEventListener('click', closeCart);
+document.getElementById('empty-cart').addEventListener('click', () => {
+  if (state.cart.size === 0) return;
+  if (!confirm('Remove all items from your cart?')) return;
+  state.cart.clear();
+  persistCart();
+  render();
+});
 
 document.getElementById('search').addEventListener('input', e => {
   state.search = e.target.value;
@@ -388,7 +399,7 @@ document.getElementById('checkout-form').addEventListener('submit', async e => {
         return;
       }
       await refreshCheckoutSummary(); // reflect the trimmed cart
-      errBox.textContent = `No longer available: ${names.join(', ') || 'some items'}. Removed from your cart — please review and resubmit.`;
+      errBox.textContent = `No longer available: ${names.join(', ') || 'some items'}. Removed from your cart. Please review and resubmit.`;
     } else {
       errBox.textContent = err.error || 'Could not submit your request.';
     }
@@ -419,7 +430,7 @@ function openCategoryImage(catId) {
   document.getElementById('item-dialog-name').textContent = cat.title;
   const lot = categoryLot(cat);
   document.getElementById('item-dialog-price').innerHTML = lot.worth
-    ? `Lot: ${fmt(lot.price)} <span style="color:var(--ink-muted); font-weight:400; font-size:14px;">(${fmt(lot.availSum)} separately — save ${fmt(lot.savings)})</span>`
+    ? `Lot: ${fmt(lot.price)} <span style="color:var(--ink-muted); font-weight:400; font-size:14px;">(${fmt(lot.availSum)} separately · save ${fmt(lot.savings)})</span>`
     : `<span style="font-size:15px; color:var(--ink-muted);">Items priced individually</span>`;
   const addBtn = document.getElementById('item-dialog-add');
   const available = lot.avail;

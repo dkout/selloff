@@ -1,9 +1,10 @@
 {
   "sale": {
     "title": "Moving Sale",
-    "subtitle": "Cambridge — pick up by June 15",
+    "subtitle": "303 Third Street, Cambridge · pick up by June 15",
     "location": "303 Third Street, Cambridge",
     "pickupBy": "June 15",
+    "pickupNote": "Easy pickup: the building has a loading dock and oversized elevators that run straight from the apartment to the parking dock, and nothing needs to be disassembled.",
     "fullLot": {
       "price": 3650,
       "label": "Deal for all items (excluding bikes)",
@@ -70,14 +71,14 @@
     },
     {
       "id": "bed",
-      "title": "Bedroom — Bed",
+      "title": "Bedroom & Bed",
       "image": "08_bedroom_-_bed.jpg",
       "lotPrice": 350,
       "items": [
         { "id": "bed-frame", "name": "Queen upholstered platform bed, grey", "price": 180 },
         { "id": "bed-mattress", "name": "Queen mattress (Allswell)", "price": 250 },
         { "id": "bed-pillows", "name": "Pillows (Allswell pair + down extra)", "price": 75 },
-        { "id": "bed-bedding", "name": "Bedding (cotton, high quality – pair)", "price": 50 }
+        { "id": "bed-bedding", "name": "Bedding (cotton, high quality, pair)", "price": 50 }
       ]
     },
     {
