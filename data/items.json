@@ -5,9 +5,11 @@
     "location": "303 Third Street, Cambridge",
     "pickupBy": "June 15",
     "fullLot": {
-      "price": 3850,
+      "price": 3650,
       "label": "Deal for all items (excluding bikes)",
-      "excludeCategoryIds": ["bike-commute", "bike-race"]
+      "excludeCategoryIds": ["bike-commute", "bike-race"],
+      "deadline": "2026-06-08T14:00:00-04:00",
+      "deadlineLabel": "Monday, June 8 · 2:00 PM ET"
     }
   },
   "categories": [

@@ -88,6 +88,25 @@ function fullLotState() {
   return { availIds, availSum, price, savings: availSum - price, worth: availIds.length >= MIN_LOT_ITEMS };
 }
 
+// Live countdown to the bundle deadline. Counts down to zero and stays there —
+// it's informational only and never changes the deal or pricing.
+function updateCountdown() {
+  const el = document.getElementById('package-countdown');
+  if (!el || !state.data) return;
+  const fl = state.data.sale.fullLot;
+  const dl = fl.deadline ? Date.parse(fl.deadline) : null;
+  if (!dl) { el.innerHTML = ''; return; }
+
+  let ms = Math.max(0, dl - Date.now());
+  const d = Math.floor(ms / 86400000); ms -= d * 86400000;
+  const h = Math.floor(ms / 3600000); ms -= h * 3600000;
+  const m = Math.floor(ms / 60000); ms -= m * 60000;
+  const s = Math.floor(ms / 1000);
+  const pad = v => String(v).padStart(2, '0');
+  const title = fl.deadlineLabel ? `Bundle price ends ${fl.deadlineLabel}` : 'Bundle price ends';
+  el.innerHTML = `<span class="cd-title">${title}</span><span class="cd-timer">${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s</span>`;
+}
+
 function persistCart() {
   localStorage.setItem('cart', JSON.stringify([...state.cart]));
 }
@@ -173,19 +192,21 @@ function render() {
   document.getElementById('cart-count').textContent = state.cart.size;
 
   const fl = fullLotState();
-  const heroLot = document.getElementById('hero-lot');
+  const pkg = document.getElementById('package-deal');
   const takeAllBtn = document.getElementById('take-all-btn');
-  if (fl.worth) {
-    heroLot.innerHTML = `<span>Take everything (excluding bikes):</span> <strong>${fmt(fl.price)}</strong> <span class="hero-save">save ${fmt(fl.savings)}</span>`;
+  if (!fl.worth) {
+    pkg.style.display = 'none';
+  } else {
+    pkg.style.display = '';
+    document.getElementById('package-amount').textContent = fmt(fl.price);
+    document.getElementById('package-save').textContent = `save ${fmt(fl.savings)}`;
     const allInCart = fl.availIds.every(id => state.cart.has(id));
     takeAllBtn.style.display = '';
     takeAllBtn.disabled = false;
     takeAllBtn.classList.toggle('in-cart', allInCart);
     takeAllBtn.textContent = allInCart ? '✓ Everything in cart' : 'Add everything to cart';
-  } else {
-    heroLot.innerHTML = `<span>Browse the items below — buying individually now beats the full-lot bundle.</span>`;
-    takeAllBtn.style.display = 'none';
   }
+  updateCountdown();
 
   renderCart();
 }
@@ -425,3 +446,4 @@ document.getElementById('item-dialog-close').addEventListener('click', () => {
 });
 
 loadItems();
+setInterval(updateCountdown, 1000);

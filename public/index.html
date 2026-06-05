@@ -25,8 +25,21 @@
     <div class="wrap">
       <h1 id="hero-title">Moving Sale</h1>
       <p class="hero-sub" id="hero-sub">Cambridge — pick up by June 15</p>
-      <div class="hero-lot" id="hero-lot"></div>
-      <button class="hero-lot-btn" id="take-all-btn"></button>
+
+      <div class="package-deal" id="package-deal">
+        <span class="package-badge">Whole-place bundle</span>
+        <div class="package-main">
+          <div class="package-info">
+            <div class="package-label">Take everything <span class="package-sub">(excluding bikes)</span></div>
+            <div class="package-price">
+              <span class="package-amount" id="package-amount">—</span>
+              <span class="package-save" id="package-save"></span>
+            </div>
+          </div>
+          <button class="package-btn" id="take-all-btn">Add everything to cart</button>
+        </div>
+        <div class="package-countdown" id="package-countdown" aria-live="polite"></div>
+      </div>
     </div>
   </section>
 
