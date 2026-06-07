@@ -9,8 +9,8 @@
       "price": 3650,
       "label": "Deal for all items (excluding bikes)",
       "excludeCategoryIds": ["bike-commute", "bike-race"],
-      "deadline": "2026-06-08T14:00:00-04:00",
-      "deadlineLabel": "Monday, June 8 · 2:00 PM ET"
+      "deadline": "2026-06-09T00:00:00-04:00",
+      "deadlineLabel": "Monday, June 8 at midnight ET"
     }
   },
   "categories": [
@@ -265,9 +265,9 @@
       "id": "bike-race",
       "title": "Bicycle (racing)",
       "image": "23_bicycle_racing.jpg",
-      "lotPrice": 4200,
+      "lotPrice": 4000,
       "items": [
-        { "id": "br-bmc", "name": "BMC Teammachine SLR TWO (2022)", "price": 4000 },
+        { "id": "br-bmc", "name": "BMC Teammachine SLR TWO (2022)", "price": 3800 },
         { "id": "br-garmin", "name": "Garmin Edge 530", "price": 80 },
         { "id": "br-pedals", "name": "Power meter pedals (Garmin)", "price": 120 },
         { "id": "br-tribars", "name": "Tri-bars (racing)", "price": 80 },
@@ -280,9 +280,9 @@
       "id": "bike-commute",
       "title": "Bicycle (commuting)",
       "image": "22_bicycle_commuting.jpg",
-      "lotPrice": 450,
+      "lotPrice": 400,
       "items": [
-        { "id": "bc-cannondale", "name": "Cannondale Synapse 2019 w/ disc brakes", "price": 400 },
+        { "id": "bc-cannondale", "name": "Cannondale Synapse 2019 w/ disc brakes", "price": 350 },
         { "id": "bc-lock", "name": "Kryptonite U-lock", "price": 60 },
         { "id": "bc-nuts", "name": "Locking nuts", "price": 30 },
         { "id": "bc-tribars", "name": "Tri-bars (add-on)", "price": 20 },
