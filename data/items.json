@@ -9,8 +9,8 @@
       "price": 3650,
       "label": "Deal for all items (excluding bikes)",
       "excludeCategoryIds": ["bike-commute", "bike-race"],
-      "deadline": "2026-06-09T00:00:00-04:00",
-      "deadlineLabel": "Monday, June 8 at midnight ET"
+      "deadline": "2026-06-09T23:59:00-04:00",
+      "deadlineLabel": "Tuesday, June 9 at 11:59 PM ET"
     }
   },
   "categories": [
