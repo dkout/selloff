@@ -136,7 +136,9 @@ body {
 /* Categories */
 .categories { display: grid; gap: 48px; padding: 8px 0 80px; }
 .category { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 32px; }
-@media (max-width: 760px) { .category { grid-template-columns: 1fr; gap: 16px; } }
+/* Below ~960px the two-column layout leaves too little room for item names —
+   collapse to a single column sooner rather than truncating them away. */
+@media (max-width: 960px) { .category { grid-template-columns: 1fr; gap: 16px; } }
 
 .category-media {
   position: relative;
@@ -191,7 +193,11 @@ body {
   padding: 14px 16px; background: var(--surface);
   font-size: 15px;
 }
-.item-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-name {
+  min-width: 0; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; line-clamp: 2;
+}
 .item.sold .item-name { text-decoration: line-through; color: var(--ink-muted); }
 .item.in-cart { background: #f4f1ea; }
 .item-price { font-variant-numeric: tabular-nums; color: var(--ink); min-width: 56px; text-align: right; }
@@ -204,10 +210,9 @@ body {
 }
 .item-action:hover { border-color: var(--ink); }
 .item-action.in-cart { background: var(--ink); color: var(--accent-ink); border-color: var(--ink); }
-.item-action:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .sold-tag { font-size: 12px; color: var(--warn); font-weight: 500; }
-.pending-tag { font-size: 12px; color: var(--ink-muted); }
+.pending-tag { font-size: 12px; color: var(--ink-muted); white-space: nowrap; }
 
 /* Cart drawer */
 .cart-drawer {
@@ -393,7 +398,6 @@ body {
 .login-card .primary { width: 100%; }
 .login-card .error { color: var(--warn); font-size: 13px; margin-top: 12px; }
 
-.sold-section h2 { font-size: 16px; margin: 24px 0 8px; }
 .sold-items {
   display: grid; gap: 6px;
   background: var(--surface); border: 1px solid var(--line);

@@ -4,14 +4,28 @@ const state = {
   search: '',
   hideSold: true,
   priceCache: { sig: null, value: null },
+  itemCat: new Map(), // itemId -> categoryId
 };
 
 const fmt = n => `$${n.toLocaleString('en-US')}`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cartSig = () => [...state.cart].sort().join(',');
 
 async function loadItems() {
-  const res = await fetch('/api/items');
-  state.data = await res.json();
+  try {
+    const res = await fetch('/api/items');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    state.data = await res.json();
+  } catch {
+    const root = document.getElementById('categories');
+    root.innerHTML = `<div class="empty-state">Couldn’t load the sale — check your connection.<br/><br/>
+      <button class="ghost" id="retry-load" style="width:auto;">Retry</button></div>`;
+    document.getElementById('retry-load').addEventListener('click', loadItems);
+    return;
+  }
   state.priceCache = { sig: null, value: null }; // availability may have changed
+  state.itemCat = new Map();
+  for (const c of state.data.categories) for (const it of c.items) state.itemCat.set(it.id, c.id);
   hydrate();
   render();
 }
@@ -58,55 +72,50 @@ function availableCategoryIds(cat) {
   return cat.items.filter(i => !i.sold).map(i => i.id);
 }
 
-// Mirrors the server's pricing rule exactly (see server.js):
-// effective lot price = min(set price, 10% off the remaining items),
-// offered only while at least MIN_LOT_ITEMS remain.
-const MIN_LOT_ITEMS = 2;
-function effectiveLotPrice(initial, availSum) {
-  return Math.min(initial, Math.round(0.9 * availSum));
-}
-
+// Lot offers (price/savings/offered) are computed by the server and shipped on
+// /api/items, so the page never shows a price the server won't charge. Only
+// the cart-toggling id lists are derived locally.
 function categoryLot(cat) {
   const avail = cat.items.filter(i => !i.sold);
-  const availSum = avail.reduce((a, b) => a + b.price, 0);
-  const price = effectiveLotPrice(cat.lotPrice, availSum);
+  const offer = cat.lot || { offered: false, price: null, availableSum: 0, savings: 0 };
   return {
     avail,
     availIds: avail.map(i => i.id),
-    availSum,
-    price,
-    savings: availSum - price,
-    worth: avail.length >= MIN_LOT_ITEMS,
+    availSum: offer.availableSum,
+    price: offer.price,
+    savings: offer.savings,
+    worth: offer.offered,
   };
 }
 
 function fullLotState() {
-  const initial = state.data.sale.fullLot.price;
+  const offer = state.data.sale.fullLotOffer || { offered: false, price: null, availableSum: 0, savings: 0 };
   const availIds = [];
-  let availSum = 0;
   for (const c of nonBikeCategories()) {
-    for (const it of c.items) if (!it.sold) { availIds.push(it.id); availSum += it.price; }
+    for (const it of c.items) if (!it.sold) availIds.push(it.id);
   }
-  const price = effectiveLotPrice(initial, availSum);
-  return { availIds, availSum, price, savings: availSum - price, worth: availIds.length >= MIN_LOT_ITEMS };
+  return { availIds, availSum: offer.availableSum, price: offer.price, savings: offer.savings, worth: offer.offered };
 }
 
-// Live countdown to the bundle deadline. Counts down to zero and stays there;
-// it's informational only and never changes the deal or pricing.
+// Live countdown to the bundle deadline. Informational only — it never changes
+// the deal or pricing — and it disappears once the deadline passes instead of
+// sitting at zero.
 function updateCountdown() {
   const el = document.getElementById('package-countdown');
   if (!el || !state.data) return;
   const fl = state.data.sale.fullLot;
   const dl = fl.deadline ? Date.parse(fl.deadline) : null;
-  if (!dl) { el.innerHTML = ''; return; }
+  const remaining = dl ? dl - Date.now() : 0;
+  if (!dl || remaining <= 0) { el.innerHTML = ''; el.style.display = 'none'; return; }
+  el.style.display = '';
 
-  let ms = Math.max(0, dl - Date.now());
+  let ms = remaining;
   const d = Math.floor(ms / 86400000); ms -= d * 86400000;
   const h = Math.floor(ms / 3600000); ms -= h * 3600000;
   const m = Math.floor(ms / 60000); ms -= m * 60000;
   const s = Math.floor(ms / 1000);
   const pad = v => String(v).padStart(2, '0');
-  const title = fl.deadlineLabel ? `Bundle price ends ${fl.deadlineLabel}` : 'Bundle price ends';
+  const title = fl.deadlineLabel ? `Bundle price ends ${esc(fl.deadlineLabel)}` : 'Bundle price ends';
   el.innerHTML = `<span class="cd-title">${title}</span><span class="cd-timer">${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s</span>`;
 }
 
@@ -116,13 +125,14 @@ function persistCart() {
 
 async function priceCart() {
   if (state.cart.size === 0) return { total: 0, lotsApplied: [], lineItems: [] };
-  const sig = [...state.cart].sort().join(',');
+  const sig = cartSig();
   if (state.priceCache.sig === sig) return state.priceCache.value;
   const res = await fetch('/api/price', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ itemIds: [...state.cart] }),
   });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const value = await res.json();
   state.priceCache = { sig, value };
   return value;
@@ -152,18 +162,22 @@ function render() {
     const lotRow = lot.worth
       ? `<div class="category-lot-row at-end">
            <div class="category-lot">Lot: <strong>${fmt(lot.price)}</strong> <span class="save">save ${fmt(lot.savings)}</span></div>
-           <button class="category-lot-btn${lotInCart ? ' in-cart' : ''}" data-cat-lot="${cat.id}">${lotInCart ? '✓ Lot in cart' : 'Add lot to cart'}</button>
+           <button class="category-lot-btn${lotInCart ? ' in-cart' : ''}" data-cat-lot="${esc(cat.id)}">${lotInCart ? '✓ Lot in cart' : 'Add lot to cart'}</button>
          </div>`
       : '';
 
+    const availCount = cat.items.filter(i => !i.sold).length;
+    const soldCount = cat.items.length - availCount;
+    const countTag = `${availCount} item${availCount === 1 ? '' : 's'}${soldCount ? ` · ${soldCount} sold` : ''}`;
+
     el.innerHTML = `
-      <div class="category-media" data-cat="${cat.id}">
-        <img src="/images/${cat.image}" alt="${cat.title}" loading="lazy" />
-        <div class="category-media-tag">${cat.items.length} item${cat.items.length === 1 ? '' : 's'}</div>
+      <div class="category-media" data-cat="${esc(cat.id)}">
+        <img src="/images/${esc(cat.image)}" alt="${esc(cat.title)}" loading="lazy" />
+        <div class="category-media-tag">${countTag}</div>
       </div>
       <div class="category-info">
-        <h2 class="category-title">${cat.title}</h2>
-        <div class="items" data-cat-items="${cat.id}"></div>
+        <h2 class="category-title">${esc(cat.title)}</h2>
+        <div class="items" data-cat-items="${esc(cat.id)}"></div>
         ${lotRow}
       </div>
     `;
@@ -172,12 +186,15 @@ function render() {
       const inCart = state.cart.has(it.id);
       const row = document.createElement('div');
       row.className = 'item' + (it.sold ? ' sold' : '') + (inCart ? ' in-cart' : '');
+      const pendingTag = !it.sold && it.pendingRequests > 0
+        ? ` <span class="pending-tag">· ${it.pendingRequests} pending</span>`
+        : '';
       row.innerHTML = `
-        <div class="item-name" title="${it.name}">${it.name}</div>
+        <div class="item-name" title="${esc(it.name)}">${esc(it.name)}${pendingTag}</div>
         <div class="item-price">${fmt(it.price)}</div>
         ${it.sold
           ? '<span class="sold-tag">SOLD</span>'
-          : `<button class="item-action${inCart ? ' in-cart' : ''}" data-item="${it.id}">${inCart ? 'In cart' : 'Add'}</button>`}
+          : `<button class="item-action${inCart ? ' in-cart' : ''}" data-item="${esc(it.id)}">${inCart ? 'In cart' : 'Add'}</button>`}
       `;
       itemsEl.appendChild(row);
     }
@@ -229,7 +246,20 @@ async function renderCart() {
     return;
   }
 
-  const price = await priceCart();
+  const sig = cartSig();
+  let price;
+  try {
+    price = await priceCart();
+  } catch {
+    if (cartSig() !== sig) return; // a newer render is in flight
+    body.innerHTML = '<div class="cart-empty">Couldn’t load prices — check your connection and try again.</div>';
+    totalEl.textContent = '—';
+    savingsEl.textContent = '';
+    checkout.disabled = true;
+    return;
+  }
+  // The cart changed while we were waiting; a newer renderCart will paint.
+  if (cartSig() !== sig) return;
   checkout.disabled = false;
 
   const lotMap = new Map();
@@ -237,7 +267,7 @@ async function renderCart() {
 
   const byCat = new Map();
   for (const li of price.lineItems) {
-    const key = li.includedInLot === 'full' ? '__full__' : (li.includedInLot || ('_' + state.data.categories.find(c => c.items.some(i => i.id === li.itemId))?.id));
+    const key = li.includedInLot === 'full' ? '__full__' : (li.includedInLot || '_' + state.itemCat.get(li.itemId));
     if (!byCat.has(key)) byCat.set(key, []);
     byCat.get(key).push(li);
   }
@@ -250,20 +280,20 @@ async function renderCart() {
     if (lot) {
       const sub = lines.reduce((a, b) => a + b.price, 0);
       const save = sub - lot.price;
-      html += `<div class="cart-lot-badge">${lot.label}: <strong>${fmt(lot.price)}</strong> · saved ${fmt(save)}</div>`;
+      html += `<div class="cart-lot-badge">${esc(lot.label)}: <strong>${fmt(lot.price)}</strong> · saved ${fmt(save)}</div>`;
       for (const li of lines) {
         html += `<div class="cart-line lot">
-          <div class="cart-line-name struck" title="${li.name}">${li.name}</div>
+          <div class="cart-line-name struck" title="${esc(li.name)}">${esc(li.name)}</div>
           <div class="cart-line-price">${fmt(li.price)}</div>
-          <button class="cart-line-remove" data-remove="${li.itemId}" aria-label="Remove">✕</button>
+          <button class="cart-line-remove" data-remove="${esc(li.itemId)}" aria-label="Remove">✕</button>
         </div>`;
       }
     } else {
       for (const li of lines) {
         html += `<div class="cart-line">
-          <div class="cart-line-name" title="${li.name}">${li.name}</div>
+          <div class="cart-line-name" title="${esc(li.name)}">${esc(li.name)}</div>
           <div class="cart-line-price bold">${fmt(li.price)}</div>
-          <button class="cart-line-remove" data-remove="${li.itemId}" aria-label="Remove">✕</button>
+          <button class="cart-line-remove" data-remove="${esc(li.itemId)}" aria-label="Remove">✕</button>
         </div>`;
       }
     }
@@ -276,11 +306,17 @@ async function renderCart() {
 }
 
 function openCart() {
-  document.getElementById('cart-drawer').classList.add('open');
+  const drawer = document.getElementById('cart-drawer');
+  drawer.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  drawer.inert = false;
   document.getElementById('scrim').hidden = false;
 }
 function closeCart() {
-  document.getElementById('cart-drawer').classList.remove('open');
+  const drawer = document.getElementById('cart-drawer');
+  drawer.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  drawer.inert = true;
   document.getElementById('scrim').hidden = true;
 }
 
@@ -300,6 +336,13 @@ document.addEventListener('click', e => {
   if (lotBtn) { toggleCategoryLot(lotBtn.dataset.catLot); return; }
   const media = e.target.closest('[data-cat]');
   if (media) { openCategoryImage(media.dataset.cat); return; }
+});
+
+// Escape closes the cart drawer (native <dialog> handles its own Escape first).
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.querySelector('dialog[open]')) return;
+  if (document.getElementById('cart-drawer').classList.contains('open')) closeCart();
 });
 
 function toggleCategoryLot(catId) {
@@ -348,14 +391,20 @@ document.getElementById('hide-sold').addEventListener('change', e => {
 
 async function refreshCheckoutSummary() {
   const summary = document.getElementById('dialog-summary');
-  const price = await priceCart();
+  let price;
+  try {
+    price = await priceCart();
+  } catch {
+    summary.innerHTML = '<div class="row"><span>Couldn’t load prices — please try again.</span></div>';
+    return;
+  }
   let rows = '';
   for (const lot of price.lotsApplied) {
-    rows += `<div class="row"><span>${lot.label}</span><span>${fmt(lot.price)}</span></div>`;
+    rows += `<div class="row"><span>${esc(lot.label)}</span><span>${fmt(lot.price)}</span></div>`;
   }
   for (const li of price.lineItems) {
     if (li.includedInLot) continue;
-    rows += `<div class="row"><span>${li.name}</span><span>${fmt(li.price)}</span></div>`;
+    rows += `<div class="row"><span>${esc(li.name)}</span><span>${fmt(li.price)}</span></div>`;
   }
   rows += `<div class="row total"><span>Total</span><span>${fmt(price.total)}</span></div>`;
   summary.innerHTML = rows;
@@ -382,11 +431,18 @@ document.getElementById('checkout-form').addEventListener('submit', async e => {
   };
   const errBox = document.getElementById('form-error');
   errBox.hidden = true;
-  const res = await fetch('/api/bids', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+  let res;
+  try {
+    res = await fetch('/api/bids', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    errBox.textContent = 'Network error — please check your connection and try again.';
+    errBox.hidden = false;
+    return;
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     if (res.status === 409 && Array.isArray(err.unavailableItemIds)) {
@@ -426,7 +482,10 @@ function openCategoryImage(catId) {
   const dlgImg = document.getElementById('item-dialog-img');
   dlgImg.src = `/images/${cat.image}`;
   dlgImg.alt = cat.title;
-  document.getElementById('item-dialog-cat').textContent = `${cat.items.length} item${cat.items.length === 1 ? '' : 's'}`;
+  const availCount = cat.items.filter(i => !i.sold).length;
+  const soldCount = cat.items.length - availCount;
+  document.getElementById('item-dialog-cat').textContent =
+    `${availCount} item${availCount === 1 ? '' : 's'}${soldCount ? ` · ${soldCount} sold` : ''}`;
   document.getElementById('item-dialog-name').textContent = cat.title;
   const lot = categoryLot(cat);
   document.getElementById('item-dialog-price').innerHTML = lot.worth

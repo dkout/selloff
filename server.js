@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { computeCartPrice, computeDisplayPricing } = require('./lib/pricing');
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
@@ -34,6 +35,35 @@ function secretsMatch(a, b) {
   const ha = crypto.createHash('sha256').update(String(a)).digest();
   const hb = crypto.createHash('sha256').update(String(b)).digest();
   return crypto.timingSafeEqual(ha, hb);
+}
+
+// Admin sessions: the cookie holds a random token, never the password itself.
+// Tokens live in memory only — a restart/redeploy just means logging in again,
+// and state.json (orders) is never touched by auth.
+const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const MAX_SESSIONS = 500;
+const sessions = new Map(); // token -> expiry epoch ms
+
+function createSession() {
+  const now = Date.now();
+  for (const [t, exp] of sessions) if (now > exp) sessions.delete(t);
+  while (sessions.size >= MAX_SESSIONS) sessions.delete(sessions.keys().next().value);
+  const token = crypto.randomBytes(32).toString('hex');
+  sessions.set(token, now + SESSION_TTL_MS);
+  return token;
+}
+
+function sessionValid(token) {
+  if (!token) return false;
+  const exp = sessions.get(token);
+  if (!exp) return false;
+  if (Date.now() > exp) { sessions.delete(token); return false; }
+  return true;
+}
+
+function readAdminCookie(req) {
+  const cookie = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith('admin='));
+  return cookie ? cookie.slice('admin='.length) : '';
 }
 
 // Lightweight in-memory rate limiter keyed by client IP. Best-effort
@@ -133,87 +163,6 @@ Request id: ${bid.id}`;
   }).catch(err => console.error('Email notification failed:', err.message));
 }
 
-// Minimum available items for a lot deal to be offered at all.
-const MIN_LOT_ITEMS = 2;
-
-// Effective lot price = the better of the seller's set price and a guaranteed
-// 10%-off-the-remaining-items price. A lot therefore always saves at least 10%
-// and never costs more than the original set price.
-function effectiveLotPrice(initial, availSum) {
-  return Math.min(initial, Math.round(0.9 * availSum));
-}
-
-// A lot deal applies to the items still AVAILABLE in its set, priced at
-// effectiveLotPrice(), and is only offered while at least MIN_LOT_ITEMS remain.
-function computeCartPrice(itemIds, soldIds = state.soldItemIds) {
-  const sold = new Set(soldIds);
-  // Sold items are never priced, even if a stale client sends them.
-  const ids = new Set([...itemIds].filter(id => !sold.has(id)));
-  const byCategory = new Map();
-  for (const id of ids) {
-    const cat = itemToCategory.get(id);
-    if (!cat) continue;
-    if (!byCategory.has(cat.id)) byCategory.set(cat.id, []);
-    byCategory.get(cat.id).push(id);
-  }
-
-  let total = 0;
-  const lotsApplied = [];
-  const lineItems = [];
-
-  const fullLot = items.sale.fullLot;
-  const excluded = new Set(fullLot.excludeCategoryIds);
-  const nonBikeCats = items.categories.filter(c => !excluded.has(c.id));
-  const availNonBike = [];
-  for (const c of nonBikeCats) for (const it of c.items) if (!sold.has(it.id)) availNonBike.push(it);
-  const availNonBikeSum = availNonBike.reduce((a, b) => a + b.price, 0);
-
-  const hasAllNonBike = availNonBike.length > 0 && availNonBike.every(it => ids.has(it.id));
-  const fullLotPrice = effectiveLotPrice(fullLot.price, availNonBikeSum);
-
-  if (hasAllNonBike && availNonBike.length >= MIN_LOT_ITEMS) {
-    total += fullLotPrice;
-    lotsApplied.push({ kind: 'full', label: fullLot.label, price: fullLotPrice });
-    for (const it of availNonBike) {
-      lineItems.push({ itemId: it.id, name: it.name, price: it.price, includedInLot: 'full' });
-    }
-    for (const [catId, selectedIds] of byCategory) {
-      if (excluded.has(catId)) {
-        for (const id of selectedIds) {
-          const it = itemMap.get(id);
-          total += it.price;
-          lineItems.push({ itemId: id, name: it.name, price: it.price, includedInLot: null });
-        }
-      }
-    }
-    return { total, lotsApplied, lineItems };
-  }
-
-  for (const [catId, selectedIds] of byCategory) {
-    const cat = itemToCategory.get(selectedIds[0]);
-    const availItems = cat.items.filter(it => !sold.has(it.id));
-    const availSum = availItems.reduce((a, b) => a + b.price, 0);
-    const allAvailSelected = availItems.length > 0 && availItems.every(it => ids.has(it.id));
-    if (allAvailSelected && availItems.length >= MIN_LOT_ITEMS && cat.lotPrice) {
-      const lotPrice = effectiveLotPrice(cat.lotPrice, availSum);
-      total += lotPrice;
-      lotsApplied.push({ kind: 'category', categoryId: catId, label: `${cat.title} lot`, price: lotPrice });
-      for (const id of selectedIds) {
-        const it = itemMap.get(id);
-        lineItems.push({ itemId: id, name: it.name, price: it.price, includedInLot: catId });
-      }
-    } else {
-      for (const id of selectedIds) {
-        const it = itemMap.get(id);
-        total += it.price;
-        lineItems.push({ itemId: id, name: it.name, price: it.price, includedInLot: null });
-      }
-    }
-  }
-
-  return { total, lotsApplied, lineItems };
-}
-
 const app = express();
 // Trust the first proxy hop (Render/Railway/Fly/etc.) so req.ip reflects the
 // real client for rate limiting. Override with TRUST_PROXY if needed.
@@ -231,10 +180,14 @@ app.get('/api/items', (_req, res) => {
       for (const id of b.itemIds) pendingCount.set(id, (pendingCount.get(id) || 0) + 1);
     }
   }
+  // Lot offers are computed here so the storefront only ever displays prices
+  // the server will actually charge.
+  const display = computeDisplayPricing(items, state.soldItemIds);
   const out = {
-    sale: items.sale,
+    sale: { ...items.sale, fullLotOffer: display.fullLot },
     categories: items.categories.map(cat => ({
       ...cat,
+      lot: display.categories[cat.id],
       items: cat.items.map(it => ({
         ...it,
         sold: soldSet.has(it.id),
@@ -247,12 +200,19 @@ app.get('/api/items', (_req, res) => {
 
 app.post('/api/price', (req, res) => {
   const ids = Array.isArray(req.body.itemIds) ? req.body.itemIds : [];
-  res.json(computeCartPrice(ids));
+  res.json(computeCartPrice(items, ids, state.soldItemIds));
 });
 
+// Cap stored bids so abuse can't grow state.json without bound. Oldest decided
+// bids are pruned first; pending bids are never dropped automatically.
+const MAX_STORED_BIDS = 500;
+
 app.post('/api/bids', bidLimiter, (req, res) => {
-  const name = (req.body.name || '').toString().trim().slice(0, 120);
-  const contact = (req.body.contact || '').toString().trim().slice(0, 200);
+  // Single-line fields: collapse newlines too (they'd otherwise reach the
+  // notification email's subject/headers).
+  const oneLine = v => (v || '').toString().replace(/[\r\n]+/g, ' ').trim();
+  const name = oneLine(req.body.name).slice(0, 120);
+  const contact = oneLine(req.body.contact).slice(0, 200);
   const note = (req.body.note || '').toString().trim().slice(0, 500);
   // De-dupe and cap to keep stored bids bounded.
   const itemIds = Array.isArray(req.body.itemIds)
@@ -269,7 +229,16 @@ app.post('/api/bids', bidLimiter, (req, res) => {
     return res.status(409).json({ error: 'Some items are no longer available', unavailableItemIds: unavailable });
   }
 
-  const price = computeCartPrice(itemIds);
+  if (state.bids.length >= MAX_STORED_BIDS) {
+    for (let i = state.bids.length - 1; i >= 0 && state.bids.length >= MAX_STORED_BIDS; i--) {
+      if (state.bids[i].status !== 'pending') state.bids.splice(i, 1);
+    }
+    if (state.bids.length >= MAX_STORED_BIDS) {
+      return res.status(503).json({ error: 'Too many open requests right now — please try again later.' });
+    }
+  }
+
+  const price = computeCartPrice(items, itemIds, state.soldItemIds);
   const bid = {
     id: crypto.randomBytes(6).toString('hex'),
     name,
@@ -288,25 +257,19 @@ app.post('/api/bids', bidLimiter, (req, res) => {
 });
 
 function requireAdmin(req, res, next) {
-  const header = req.headers.authorization || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-  const cookie = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith('admin='));
-  let cookieToken = '';
-  if (cookie) {
-    try { cookieToken = decodeURIComponent(cookie.slice('admin='.length)); } catch { cookieToken = ''; }
-  }
-  if ((token && secretsMatch(token, ADMIN_PASSWORD)) || (cookieToken && secretsMatch(cookieToken, ADMIN_PASSWORD))) return next();
+  if (sessionValid(readAdminCookie(req))) return next();
   res.status(401).json({ error: 'Unauthorized' });
 }
 
 app.post('/api/admin/login', loginLimiter, (req, res) => {
   const password = (req.body.password || '').toString();
   if (!password || !secretsMatch(password, ADMIN_PASSWORD)) return res.status(401).json({ error: 'Wrong password' });
-  res.setHeader('Set-Cookie', `admin=${encodeURIComponent(password)}; ${COOKIE_FLAGS}; Max-Age=${60 * 60 * 24 * 30}`);
+  res.setHeader('Set-Cookie', `admin=${createSession()}; ${COOKIE_FLAGS}; Max-Age=${60 * 60 * 24 * 30}`);
   res.json({ ok: true });
 });
 
-app.post('/api/admin/logout', (_req, res) => {
+app.post('/api/admin/logout', (req, res) => {
+  sessions.delete(readAdminCookie(req));
   res.setHeader('Set-Cookie', `admin=; ${COOKIE_FLAGS}; Max-Age=0`);
   res.json({ ok: true });
 });

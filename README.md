@@ -19,9 +19,9 @@ If `ADMIN_PASSWORD` isn't set, it defaults to `changeme`.
 ## How lot deals work
 
 - Each category (slide) has a lot price. If the cart contains **every item** in a category and the lot price is lower than the individual sum, the cart total is replaced with the lot price (savings shown).
-- If the cart contains **every non-bike item across the whole sale**, the $3,500 full-lot deal applies instead.
+- If the cart contains **every non-bike item across the whole sale**, the full-lot deal (price set in `items.json`) applies instead. Bike categories still get their own lot pricing on top, so one combined cart never costs more than splitting the same items across requests.
 
-The math is computed server-side (`POST /api/price`) so the displayed total is authoritative.
+All pricing lives in `lib/pricing.js` and runs server-side (`POST /api/price` for cart totals; `GET /api/items` ships the computed lot offers the storefront displays), so the page never shows a price the server won't charge. Run `npm test` to exercise the pricing rules.
 
 ## Approval flow
 
@@ -73,7 +73,7 @@ Environment variables:
 | Var | Default | Purpose |
 |---|---|---|
 | `PORT` | `3000` | HTTP port |
-| `ADMIN_PASSWORD` | `changeme` | Seller login password (compared in constant time) |
+| `ADMIN_PASSWORD` | `changeme` | Seller login password (compared in constant time). A successful login sets a random session-token cookie — the password itself is never stored in the browser. Sessions are in-memory, so a server restart/redeploy just means signing in again; orders are unaffected. |
 | `DATA_DIR` | `./data` | Where mutable `state.json` is written (point at a persistent disk in prod). The catalog `items.json` always loads from the app directory regardless. |
 | `NODE_ENV` | — | Set to `production` to add the `Secure` flag to the admin cookie (requires HTTPS). **In production the app refuses to start unless `ADMIN_PASSWORD` is set to a non-default value.** |
 | `TRUST_PROXY` | `1` | Proxy hops to trust for client IP (rate limiting). `0` for direct/localhost |
@@ -89,8 +89,9 @@ Works with any SMTP provider — e.g. a Gmail app password (`smtps://you%40gmail
 
 ## Notes on behavior & limits
 
-- **Lot pricing is dynamic.** A lot's price is `min(set lot price, round(90% of the remaining items' sum))`, so a lot always saves at least 10% and never costs more than the seller's set price. As items sell, the lot price tracks 90% of what's left. A lot is only offered while at least **2** items remain in it (set by `MIN_LOT_ITEMS` in `server.js` and `app.js` — keep them equal). The "take everything (excluding bikes)" deal follows the same rule against all available non-bike items. The frontend and server use the identical formula, so the page never shows a price the server won't charge.
+- **Lot pricing is dynamic.** A lot's price is `min(set lot price, round(90% of the remaining items' sum))`, so a lot always saves at least 10% and never costs more than the seller's set price. As items sell, the lot price tracks 90% of what's left. A lot is only offered while at least **2** items remain in it (`MIN_LOT_ITEMS` in `lib/pricing.js` — the single source of truth; the frontend only displays server-computed prices). The "take everything (excluding bikes)" deal follows the same rule against all available non-bike items.
   - Note: if a category's set lot price is *higher* than 90% of its items' sum (e.g. Cookware: set $190 vs items summing $180 → shown at $162), the 90% cap wins. Adjust the set price in `items.json` if that's not intended.
+- **The bundle countdown is informational.** It hides itself once the deadline passes; it never changes pricing. To actually end the deal, edit `fullLot` in `items.json` and redeploy.
 - **Rate limiting** (best-effort, in-memory): 20 login attempts / 15 min and 10 bid submissions / min per IP. Resets on restart.
-- **Input caps**: buyer name ≤ 120 chars, contact ≤ 200, note ≤ 500; request body ≤ 100 kB.
+- **Input caps**: buyer name ≤ 120 chars, contact ≤ 200, note ≤ 500; request body ≤ 100 kB. At most 500 stored bids — beyond that, oldest *decided* bids are pruned first and new submissions are refused (503) rather than dropping anything pending.
 - **Images** were downscaled to ~1100px long edge and served with a 7-day cache. Full-resolution originals are backed up at `../images_original_backup/` (outside the deployable `site/` tree).

@@ -4,15 +4,33 @@ const root = document.getElementById('root');
 let view = { tab: 'pending', bids: [], items: null };
 
 async function fetchBids() {
-  const res = await fetch('/api/admin/bids');
+  let res;
+  try {
+    res = await fetch('/api/admin/bids');
+  } catch {
+    renderError('Network error — check your connection.');
+    return false;
+  }
   if (res.status === 401) { renderLogin(); return false; }
+  if (!res.ok) { renderError(`Server error (${res.status}).`); return false; }
   view.bids = (await res.json()).bids;
   return true;
 }
 
 async function fetchItems() {
   const res = await fetch('/api/items');
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   view.items = await res.json();
+}
+
+function renderError(msg) {
+  root.innerHTML = `
+    <div class="login-card">
+      <h1>Something went wrong</h1>
+      <p class="muted">${escapeHtml(msg)}</p>
+      <button class="primary" id="retry">Retry</button>
+    </div>`;
+  document.getElementById('retry').addEventListener('click', init);
 }
 
 function renderLogin(err = '') {
@@ -42,7 +60,12 @@ function renderLogin(err = '') {
 async function init() {
   const ok = await fetchBids();
   if (!ok) return;
-  await fetchItems();
+  try {
+    await fetchItems();
+  } catch {
+    renderError('Could not load the item catalog.');
+    return;
+  }
   renderDashboard();
 }
 
