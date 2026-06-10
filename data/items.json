@@ -6,11 +6,11 @@
     "pickupBy": "June 15",
     "pickupNote": "Easy pickup: the building has a loading dock and oversized elevators that run straight from the apartment to the parking dock, and nothing needs to be disassembled.",
     "fullLot": {
-      "price": 3650,
+      "price": 3380,
       "label": "Deal for all items (excluding bikes)",
       "excludeCategoryIds": ["bike-commute", "bike-race"],
-      "deadline": "2026-06-09T23:59:00-04:00",
-      "deadlineLabel": "Tuesday, June 9 at 11:59 PM ET"
+      "deadline": "2026-06-11T23:59:00-04:00",
+      "deadlineLabel": "Thursday, June 11 at 11:59 PM ET"
     }
   },
   "categories": [
@@ -18,17 +18,17 @@
       "id": "office",
       "title": "Home Office",
       "image": "07_home_office.jpg",
-      "lotPrice": 850,
+      "lotPrice": 723,
       "items": [
-        { "id": "office-desk", "name": "Electric sit-stand desk, wood top (Fully)", "price": 600 },
-        { "id": "office-chair", "name": "Mesh ergonomic office chair", "price": 40 },
-        { "id": "office-monitor-38", "name": "38\" 4K monitor", "price": 220 },
-        { "id": "office-monitor-asus", "name": "ASUS 21\" 1080p monitor", "price": 40 },
-        { "id": "office-keyboard", "name": "Mechanical keyboard (Keychron K1)", "price": 60 },
-        { "id": "office-screenbar", "name": "Monitor light bar (BenQ ScreenBar Halo)", "price": 85 },
+        { "id": "office-desk", "name": "Electric sit-stand desk, wood top (Fully)", "price": 480 },
+        { "id": "office-chair", "name": "Mesh ergonomic office chair", "price": 36 },
+        { "id": "office-monitor-38", "name": "38\" 4K monitor", "price": 198 },
+        { "id": "office-monitor-asus", "name": "ASUS 21\" 1080p monitor", "price": 36 },
+        { "id": "office-keyboard", "name": "Mechanical keyboard (Keychron K1)", "price": 54 },
+        { "id": "office-screenbar", "name": "Monitor light bar (BenQ ScreenBar Halo)", "price": 77 },
         { "id": "office-laptop-stand", "name": "Aluminum laptop stand", "price": 20 },
-        { "id": "office-phone-charger", "name": "Wireless phone dual charging stand w/ portable battery", "price": 50 },
-        { "id": "office-monitor-stand", "name": "Ergotron Adjustable Monitor Stand", "price": 75 },
+        { "id": "office-phone-charger", "name": "Wireless phone dual charging stand w/ portable battery", "price": 45 },
+        { "id": "office-monitor-stand", "name": "Ergotron Adjustable Monitor Stand", "price": 68 },
         { "id": "office-standing-lamp", "name": "Standing lamp", "price": 30 }
       ]
     },
@@ -36,13 +36,13 @@
       "id": "living-room",
       "title": "Living Room",
       "image": "03_living_room.jpg",
-      "lotPrice": 750,
+      "lotPrice": 638,
       "items": [
-        { "id": "lr-sectional", "name": "White L-shaped sectional sofa w/ chaise", "price": 600 },
-        { "id": "lr-coffee-table", "name": "Dark wood coffee table w/ lower shelf", "price": 60 },
-        { "id": "lr-poang", "name": "Poang armchair", "price": 100 },
-        { "id": "lr-mirror", "name": "Standing floor mirror", "price": 50 },
-        { "id": "lr-floorlamp", "name": "Ikea floor lamp", "price": 40 },
+        { "id": "lr-sectional", "name": "White L-shaped sectional sofa w/ chaise", "price": 480 },
+        { "id": "lr-coffee-table", "name": "Dark wood coffee table w/ lower shelf", "price": 54 },
+        { "id": "lr-poang", "name": "Poang armchair", "price": 90 },
+        { "id": "lr-mirror", "name": "Standing floor mirror", "price": 45 },
+        { "id": "lr-floorlamp", "name": "Ikea floor lamp", "price": 36 },
         { "id": "lr-pillows", "name": "Throw pillow set", "price": 15 }
       ]
     },
@@ -50,20 +50,20 @@
       "id": "dining",
       "title": "Dining Set",
       "image": "12_dining_set.jpg",
-      "lotPrice": 700,
+      "lotPrice": 450,
       "items": [
-        { "id": "dining-table", "name": "Solid wood dining table, rustic & expandable", "price": 650 },
-        { "id": "dining-chairs", "name": "Metal Tolix-style chair w/ cushion (set of 4)", "price": 150 }
+        { "id": "dining-table", "name": "Solid wood dining table, rustic & expandable", "price": 425 },
+        { "id": "dining-chairs", "name": "Metal Tolix-style chair w/ cushion (set of 4)", "price": 135 }
       ]
     },
     {
       "id": "espresso",
       "title": "Espresso Bar",
       "image": "19_espresso_bar.jpg",
-      "lotPrice": 450,
+      "lotPrice": 383,
       "items": [
-        { "id": "esp-bambino", "name": "Breville Bambino Plus", "price": 350 },
-        { "id": "esp-grinder", "name": "Breville coffee grinder", "price": 150 },
+        { "id": "esp-bambino", "name": "Breville Bambino Plus", "price": 280 },
+        { "id": "esp-grinder", "name": "Breville coffee grinder", "price": 135 },
         { "id": "esp-scale", "name": "Espresso scale w/ timer", "price": 30 },
         { "id": "esp-portafilter", "name": "Bottomless portafilter, wood handle", "price": 30 },
         { "id": "esp-tamper", "name": "Tamper & accessories", "price": 20 }
@@ -73,36 +73,36 @@
       "id": "bed",
       "title": "Bedroom & Bed",
       "image": "08_bedroom_-_bed.jpg",
-      "lotPrice": 350,
+      "lotPrice": 298,
       "items": [
-        { "id": "bed-frame", "name": "Queen upholstered platform bed, grey", "price": 180 },
-        { "id": "bed-mattress", "name": "Queen mattress (Allswell)", "price": 250 },
-        { "id": "bed-pillows", "name": "Pillows (Allswell pair + down extra)", "price": 75 },
-        { "id": "bed-bedding", "name": "Bedding (cotton, high quality, pair)", "price": 50 }
+        { "id": "bed-frame", "name": "Queen upholstered platform bed, grey", "price": 162 },
+        { "id": "bed-mattress", "name": "Queen mattress (Allswell)", "price": 225 },
+        { "id": "bed-pillows", "name": "Pillows (Allswell pair + down extra)", "price": 68 },
+        { "id": "bed-bedding", "name": "Bedding (cotton, high quality, pair)", "price": 45 }
       ]
     },
     {
       "id": "tv-media",
       "title": "TV & Media",
       "image": "09_tv_and_media.jpg",
-      "lotPrice": 350,
+      "lotPrice": 298,
       "items": [
-        { "id": "tv-tcl", "name": "TCL 50\" 4K flat-screen TV", "price": 160 },
-        { "id": "tv-console", "name": "Wood media console w/ storage (Ikea)", "price": 70 },
-        { "id": "tv-roomba", "name": "iRobot vacuum", "price": 80 },
-        { "id": "tv-stick-vac", "name": "Cordless stick vacuum", "price": 60 },
-        { "id": "tv-speakers", "name": "2.1 computer speaker set w/ subwoofer (Logitech)", "price": 50 },
-        { "id": "tv-painting", "name": "Framed coastal painting", "price": 50 }
+        { "id": "tv-tcl", "name": "TCL 50\" 4K flat-screen TV", "price": 144 },
+        { "id": "tv-console", "name": "Wood media console w/ storage (Ikea)", "price": 63 },
+        { "id": "tv-roomba", "name": "iRobot vacuum", "price": 72 },
+        { "id": "tv-stick-vac", "name": "Cordless stick vacuum", "price": 54 },
+        { "id": "tv-speakers", "name": "2.1 computer speaker set w/ subwoofer (Logitech)", "price": 45 },
+        { "id": "tv-painting", "name": "Framed coastal painting", "price": 45 }
       ]
     },
     {
       "id": "cookware",
       "title": "Cookware",
       "image": "14_cookware.jpg",
-      "lotPrice": 190,
+      "lotPrice": 162,
       "items": [
-        { "id": "cw-dutch", "name": "Red enameled cast iron Dutch oven w/ lid", "price": 45 },
-        { "id": "cw-madein", "name": "MadeIn 3qt Stainless Steel Saucier", "price": 120 },
+        { "id": "cw-dutch", "name": "Red enameled cast iron Dutch oven w/ lid", "price": 41 },
+        { "id": "cw-madein", "name": "MadeIn 3qt Stainless Steel Saucier", "price": 108 },
         { "id": "cw-melting", "name": "2 cup melting pot", "price": 15 }
       ]
     },
@@ -110,9 +110,9 @@
       "id": "shelving",
       "title": "Shelving & Storage",
       "image": "02_shelving_and_storage.jpg",
-      "lotPrice": 120,
+      "lotPrice": 102,
       "items": [
-        { "id": "shelving-bookshelf", "name": "Black metal ladder bookshelf, 5-tier (pair)", "price": 80 },
+        { "id": "shelving-bookshelf", "name": "Black metal ladder bookshelf, 5-tier (pair)", "price": 72 },
         { "id": "shelving-bins", "name": "Plaid fabric storage bins (set of 3)", "price": 12 },
         { "id": "shelving-humidifier", "name": "Tabletop humidifier", "price": 20 },
         { "id": "shelving-books", "name": "Assorted textbook bundle", "price": 30 }
@@ -122,9 +122,9 @@
       "id": "bar-stools",
       "title": "Counter Bar Stools",
       "image": "04_counter_bar_stools.jpg",
-      "lotPrice": 120,
+      "lotPrice": 102,
       "items": [
-        { "id": "bs-stools", "name": "Rustic leather-top bar stool (pair)", "price": 110 },
+        { "id": "bs-stools", "name": "Rustic leather-top bar stool (pair)", "price": 99 },
         { "id": "bs-side-table", "name": "White side / accent table", "price": 25 },
         { "id": "bs-lamp", "name": "Ceramic table lamp", "price": 20 }
       ]
@@ -133,9 +133,9 @@
       "id": "grey-dresser",
       "title": "Grey Dresser",
       "image": "10_grey_dresser.jpg",
-      "lotPrice": 110,
+      "lotPrice": 94,
       "items": [
-        { "id": "gd-dresser", "name": "Ikea 3-drawer dresser", "price": 100 },
+        { "id": "gd-dresser", "name": "Ikea 3-drawer dresser", "price": 90 },
         { "id": "gd-hamper", "name": "Woven bamboo laundry hamper", "price": 25 },
         { "id": "gd-storage-box", "name": "Storage box", "price": 8 }
       ]
@@ -144,22 +144,22 @@
       "id": "black-dresser",
       "title": "Black Dresser",
       "image": "11_black_dresser.jpg",
-      "lotPrice": 110,
+      "lotPrice": 94,
       "items": [
-        { "id": "bd-shoe-10", "name": "Shoe rack (10 shelves)", "price": 40 },
+        { "id": "bd-shoe-10", "name": "Shoe rack (10 shelves)", "price": 36 },
         { "id": "bd-shoe-3", "name": "Shoe rack (3 shelves)", "price": 20 },
-        { "id": "bd-malm", "name": "Ikea Malm 3-drawer dresser", "price": 80 }
+        { "id": "bd-malm", "name": "Ikea Malm 3-drawer dresser", "price": 72 }
       ]
     },
     {
       "id": "skillets",
       "title": "Skillets & Pots",
       "image": "16_skillets_and_pots.jpg",
-      "lotPrice": 110,
+      "lotPrice": 94,
       "items": [
-        { "id": "sk-allclad", "name": "All-Clad nonstick frying pans (10\" & 12\", set of 2)", "price": 90 },
+        { "id": "sk-allclad", "name": "All-Clad nonstick frying pans (10\" & 12\", set of 2)", "price": 81 },
         { "id": "sk-castiron", "name": "Cast iron skillet", "price": 25 },
-        { "id": "sk-carbon", "name": "Carbon steel pan 11\"", "price": 50 },
+        { "id": "sk-carbon", "name": "Carbon steel pan 11\"", "price": 45 },
         { "id": "sk-tramontina", "name": "Tramontina stainless steel pan 10\"", "price": 30 },
         { "id": "sk-stockpot", "name": "Stainless stockpot w/ steamer insert", "price": 35 }
       ]
@@ -168,19 +168,19 @@
       "id": "bistro",
       "title": "Folding Bistro Set",
       "image": "06_folding_bistro_set.jpg",
-      "lotPrice": 100,
+      "lotPrice": 85,
       "items": [
-        { "id": "bistro-table", "name": "Folding wood-slat patio table", "price": 75 },
-        { "id": "bistro-chairs", "name": "Folding wood-slat patio chair (pair)", "price": 40 }
+        { "id": "bistro-table", "name": "Folding wood-slat patio table", "price": 68 },
+        { "id": "bistro-chairs", "name": "Folding wood-slat patio chair (pair)", "price": 36 }
       ]
     },
     {
       "id": "knives",
       "title": "Knives & Flatware",
       "image": "13_knives_and_flatware.jpg",
-      "lotPrice": 100,
+      "lotPrice": 85,
       "items": [
-        { "id": "knives-set", "name": "Kitchen knife set (chef, paring, steak)", "price": 40 },
+        { "id": "knives-set", "name": "Kitchen knife set (chef, paring, steak)", "price": 36 },
         { "id": "knives-honing", "name": "Honing steel", "price": 10 },
         { "id": "knives-organizer", "name": "Bamboo in-drawer knife organizer", "price": 12 },
         { "id": "knives-tray", "name": "Bamboo flatware drawer tray", "price": 12 },
@@ -192,9 +192,9 @@
       "id": "appliances",
       "title": "Small Appliances",
       "image": "18_small_appliances.jpg",
-      "lotPrice": 100,
+      "lotPrice": 85,
       "items": [
-        { "id": "ap-ninja", "name": "Ninja blender", "price": 50 },
+        { "id": "ap-ninja", "name": "Ninja blender", "price": 45 },
         { "id": "ap-toaster", "name": "2-slice toaster, stainless", "price": 25 },
         { "id": "ap-kettle", "name": "Electric kettle, stainless", "price": 15 },
         { "id": "ap-drying-rack", "name": "Stainless dish drying rack", "price": 30 },
@@ -206,7 +206,7 @@
       "id": "glassware",
       "title": "Glassware & Bakeware",
       "image": "21_glassware_and_bakeware.jpg",
-      "lotPrice": 80,
+      "lotPrice": 68,
       "items": [
         { "id": "gw-pyrex", "name": "Glass baking dishes / Pyrex (set)", "price": 30 },
         { "id": "gw-mixing", "name": "Mixing bowls, stainless & ceramic", "price": 20 },
@@ -221,9 +221,9 @@
       "id": "cutting-boards",
       "title": "Cutting Boards",
       "image": "15_cutting_boards.jpg",
-      "lotPrice": 65,
+      "lotPrice": 55,
       "items": [
-        { "id": "cb-endgrain", "name": "End-grain wood butcher block board", "price": 50 },
+        { "id": "cb-endgrain", "name": "End-grain wood butcher block board", "price": 45 },
         { "id": "cb-pizza", "name": "Wooden pizza board", "price": 20 },
         { "id": "cb-plastic", "name": "Plastic cutting boards (4x)", "price": 20 }
       ]
@@ -232,9 +232,9 @@
       "id": "nightstand",
       "title": "Bedside Nightstand",
       "image": "05_bedside_nightstand.jpg",
-      "lotPrice": 60,
+      "lotPrice": 51,
       "items": [
-        { "id": "ns-nightstand", "name": "Black 2-drawer nightstand", "price": 50 },
+        { "id": "ns-nightstand", "name": "Black 2-drawer nightstand", "price": 45 },
         { "id": "ns-lamps", "name": "Table lamp, square linen shade (pair)", "price": 30 }
       ]
     },
@@ -242,9 +242,9 @@
       "id": "dinnerware",
       "title": "Dinnerware & Food Storage",
       "image": "17_dinnerware_and_food_storage.jpg",
-      "lotPrice": 60,
+      "lotPrice": 51,
       "items": [
-        { "id": "dw-plates", "name": "Dinner plates, mixed colors (set)", "price": 40 },
+        { "id": "dw-plates", "name": "Dinner plates, mixed colors (set)", "price": 36 },
         { "id": "dw-bowls", "name": "Ceramic & stoneware bowls (set)", "price": 25 },
         { "id": "dw-glass-storage", "name": "Glass storage containers w/ lids (set)", "price": 25 },
         { "id": "dw-plastic-storage", "name": "Plastic food containers (set)", "price": 10 },
@@ -255,19 +255,19 @@
       "id": "printer",
       "title": "Printer & Electronics",
       "image": "20_printer_and_electronics.jpg",
-      "lotPrice": 60,
+      "lotPrice": 51,
       "items": [
-        { "id": "pr-printer", "name": "Brother laser printer", "price": 40 },
-        { "id": "pr-cabinet", "name": "Lockable file cabinet", "price": 40 }
+        { "id": "pr-printer", "name": "Brother laser printer", "price": 36 },
+        { "id": "pr-cabinet", "name": "Lockable file cabinet", "price": 36 }
       ]
     },
     {
       "id": "bike-race",
       "title": "Bicycle (racing)",
       "image": "23_bicycle_racing.jpg",
-      "lotPrice": 4000,
+      "lotPrice": 3750,
       "items": [
-        { "id": "br-bmc", "name": "BMC Teammachine SLR TWO (2022)", "price": 3800 },
+        { "id": "br-bmc", "name": "BMC Teammachine SLR TWO (2022)", "price": 3600 },
         { "id": "br-garmin", "name": "Garmin Edge 530", "price": 80 },
         { "id": "br-pedals", "name": "Power meter pedals (Garmin)", "price": 120 },
         { "id": "br-tribars", "name": "Tri-bars (racing)", "price": 80 },
