@@ -63,9 +63,10 @@ body {
 }
 .hero-sub { color: var(--ink-muted); margin: 0 0 16px; font-size: 16px; }
 
-/* Bundle card + pickup note sit side by side to save vertical space */
-.hero-row { display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap; max-width: 900px; }
-.hero-row .package-deal { flex: 2 1 360px; max-width: 560px; }
+/* Bundle card + pickup note sit side by side, spanning the same content
+   width as the sections below so the page edges line up. */
+.hero-row { display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap; }
+.hero-row .package-deal { flex: 2 1 360px; }
 .hero-note {
   flex: 1 1 240px;
   margin: 0;
