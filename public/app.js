@@ -8,6 +8,9 @@ const state = {
 };
 
 const fmt = n => `$${n.toLocaleString('en-US')}`;
+// Marked-down price: old price struck through, then the current one.
+const fmtMarkdown = (price, wasPrice) =>
+  wasPrice && wasPrice > price ? `<s class="was-price">${fmt(wasPrice)}</s>${fmt(price)}` : fmt(price);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const cartSig = () => [...state.cart].sort().join(',');
 
@@ -161,7 +164,7 @@ function render() {
     // Lot row sits at the END of the section, and only while the deal still saves money.
     const lotRow = lot.worth
       ? `<div class="category-lot-row at-end">
-           <div class="category-lot">Lot: <strong>${fmt(lot.price)}</strong> <span class="save">save ${fmt(lot.savings)}</span></div>
+           <div class="category-lot">Lot: ${cat.wasLotPrice && cat.wasLotPrice > lot.price ? `<s class="was-price">${fmt(cat.wasLotPrice)}</s>` : ''}<strong>${fmt(lot.price)}</strong> <span class="save">save ${fmt(lot.savings)}</span></div>
            <button class="category-lot-btn${lotInCart ? ' in-cart' : ''}" data-cat-lot="${esc(cat.id)}">${lotInCart ? '✓ Lot in cart' : 'Add lot to cart'}</button>
          </div>`
       : '';
@@ -191,7 +194,7 @@ function render() {
         : '';
       row.innerHTML = `
         <div class="item-name" title="${esc(it.name)}">${esc(it.name)}${pendingTag}</div>
-        <div class="item-price">${fmt(it.price)}</div>
+        <div class="item-price">${fmtMarkdown(it.price, it.wasPrice)}</div>
         ${it.sold
           ? '<span class="sold-tag">SOLD</span>'
           : `<button class="item-action${inCart ? ' in-cart' : ''}" data-item="${esc(it.id)}">${inCart ? 'In cart' : 'Add'}</button>`}
@@ -218,6 +221,10 @@ function render() {
     pkg.style.display = 'none';
   } else {
     pkg.style.display = '';
+    const fullWas = state.data.sale.fullLot.wasPrice;
+    const wasEl = document.getElementById('package-was');
+    if (fullWas && fullWas > fl.price) { wasEl.textContent = fmt(fullWas); wasEl.hidden = false; }
+    else { wasEl.hidden = true; }
     document.getElementById('package-amount').textContent = fmt(fl.price);
     document.getElementById('package-save').textContent = `save ${fmt(fl.savings)}`;
     const allInCart = fl.availIds.every(id => state.cart.has(id));
@@ -489,7 +496,7 @@ function openCategoryImage(catId) {
   document.getElementById('item-dialog-name').textContent = cat.title;
   const lot = categoryLot(cat);
   document.getElementById('item-dialog-price').innerHTML = lot.worth
-    ? `Lot: ${fmt(lot.price)} <span style="color:var(--ink-muted); font-weight:400; font-size:14px;">(${fmt(lot.availSum)} separately · save ${fmt(lot.savings)})</span>`
+    ? `Lot: ${fmtMarkdown(lot.price, cat.wasLotPrice)} <span style="color:var(--ink-muted); font-weight:400; font-size:14px;">(${fmt(lot.availSum)} separately · save ${fmt(lot.savings)})</span>`
     : `<span style="font-size:15px; color:var(--ink-muted);">Items priced individually</span>`;
   const addBtn = document.getElementById('item-dialog-add');
   const available = lot.avail;

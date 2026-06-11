@@ -101,7 +101,15 @@ test('INVARIANT: one combined cart never costs more than split carts (real catal
 test('real catalog sanity: full lot price and bike lots', () => {
   const r = computeCartPrice(realCatalog, idsOf(realCatalog), []);
   const labels = r.lotsApplied.map(l => l.label).sort();
-  assert.equal(r.lotsApplied.find(l => l.kind === 'full').price, 3380);
+  // Derive the expected bundle price from the catalog so price markdowns
+  // don't break this test; what matters is that the full-lot rule applied.
+  const bikeCatIds = new Set(realCatalog.sale.fullLot.excludeCategoryIds);
+  const nonBikeSum = realCatalog.categories
+    .filter(c => !bikeCatIds.has(c.id))
+    .flatMap(c => c.items)
+    .reduce((a, b) => a + b.price, 0);
+  const expected = effectiveLotPrice(realCatalog.sale.fullLot.price, nonBikeSum);
+  assert.equal(r.lotsApplied.find(l => l.kind === 'full').price, expected);
   assert.ok(labels.includes('Bicycle (racing) lot'));
   assert.ok(labels.includes('Bicycle (commuting) lot'));
 });

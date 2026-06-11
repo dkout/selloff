@@ -145,11 +145,22 @@ body {
   position: relative;
   border-radius: var(--radius);
   overflow: hidden;
-  aspect-ratio: 4/5;
   background: var(--surface);
   cursor: zoom-in;
+  /* Stretches with the grid row, so the photo's top/bottom edges stay flush
+     with the title + item card next to it; the floor keeps photos of very
+     short lists from collapsing into a sliver. */
+  min-height: 220px;
 }
-.category-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.category-media img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+/* In the single-column layout the image sits in its own row, so give it a
+   fixed shape again instead of matching a neighbor. */
+@media (max-width: 960px) {
+  .category-media { aspect-ratio: 4/5; min-height: 0; }
+}
 .category-media-tag {
   position: absolute; left: 12px; bottom: 12px;
   background: rgba(26,26,26,0.85); color: #fff;
@@ -201,7 +212,20 @@ body {
 }
 .item.sold .item-name { text-decoration: line-through; color: var(--ink-muted); }
 .item.in-cart { background: #f4f1ea; }
-.item-price { font-variant-numeric: tabular-nums; color: var(--ink); min-width: 56px; text-align: right; }
+.item-price { font-variant-numeric: tabular-nums; color: var(--ink); min-width: 56px; text-align: right; white-space: nowrap; }
+
+/* Marked-down prices: the old price sits struck through before the new one */
+.was-price {
+  text-decoration: line-through;
+  color: var(--ink-muted);
+  font-weight: 400;
+  margin-right: 6px;
+}
+.package-was {
+  font-size: 20px;
+  color: var(--ink-muted);
+  text-decoration: line-through;
+}
 .item-action {
   border: 1px solid var(--line-strong); background: transparent;
   color: var(--ink); padding: 6px 12px; border-radius: 999px;

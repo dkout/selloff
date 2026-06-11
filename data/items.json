@@ -6,11 +6,12 @@
     "pickupBy": "June 15",
     "pickupNote": "Easy pickup: the building has a loading dock and oversized elevators that run straight from the apartment to the parking dock, and nothing needs to be disassembled.",
     "fullLot": {
-      "price": 3380,
+      "price": 2150,
+      "wasPrice": 3380,
       "label": "Deal for all items (excluding bikes)",
       "excludeCategoryIds": ["bike-commute", "bike-race"],
-      "deadline": "2026-06-11T23:59:00-04:00",
-      "deadlineLabel": "Thursday, June 11 at 11:59 PM ET"
+      "deadline": "2026-06-13T23:59:00-04:00",
+      "deadlineLabel": "Saturday, June 13 at 11:59 PM ET"
     }
   },
   "categories": [
@@ -18,9 +19,10 @@
       "id": "office",
       "title": "Home Office",
       "image": "07_home_office.jpg",
-      "lotPrice": 723,
+      "lotPrice": 450,
+      "wasLotPrice": 723,
       "items": [
-        { "id": "office-desk", "name": "Electric sit-stand desk, wood top (Fully)", "price": 480 },
+        { "id": "office-desk", "name": "Electric sit-stand desk, wood top (Fully)", "price": 350, "wasPrice": 480 },
         { "id": "office-chair", "name": "Mesh ergonomic office chair", "price": 36 },
         { "id": "office-monitor-38", "name": "38\" 4K monitor", "price": 198 },
         { "id": "office-monitor-asus", "name": "ASUS 21\" 1080p monitor", "price": 36 },
@@ -36,9 +38,10 @@
       "id": "living-room",
       "title": "Living Room",
       "image": "03_living_room.jpg",
-      "lotPrice": 638,
+      "lotPrice": 400,
+      "wasLotPrice": 638,
       "items": [
-        { "id": "lr-sectional", "name": "White L-shaped sectional sofa w/ chaise", "price": 480 },
+        { "id": "lr-sectional", "name": "White L-shaped sectional sofa w/ chaise", "price": 350, "wasPrice": 480 },
         { "id": "lr-coffee-table", "name": "Dark wood coffee table w/ lower shelf", "price": 54 },
         { "id": "lr-poang", "name": "Poang armchair", "price": 90 },
         { "id": "lr-mirror", "name": "Standing floor mirror", "price": 45 },
@@ -50,9 +53,10 @@
       "id": "dining",
       "title": "Dining Set",
       "image": "12_dining_set.jpg",
-      "lotPrice": 450,
+      "lotPrice": 350,
+      "wasLotPrice": 450,
       "items": [
-        { "id": "dining-table", "name": "Solid wood dining table, rustic & expandable", "price": 425 },
+        { "id": "dining-table", "name": "Solid wood dining table, rustic & expandable", "price": 300, "wasPrice": 425 },
         { "id": "dining-chairs", "name": "Metal Tolix-style chair w/ cushion (set of 4)", "price": 135 }
       ]
     },
@@ -73,10 +77,11 @@
       "id": "bed",
       "title": "Bedroom & Bed",
       "image": "08_bedroom_-_bed.jpg",
-      "lotPrice": 298,
+      "lotPrice": 200,
+      "wasLotPrice": 298,
       "items": [
-        { "id": "bed-frame", "name": "Queen upholstered platform bed, grey", "price": 162 },
-        { "id": "bed-mattress", "name": "Queen mattress (Allswell)", "price": 225 },
+        { "id": "bed-frame", "name": "Queen upholstered platform bed, grey", "price": 100, "wasPrice": 162 },
+        { "id": "bed-mattress", "name": "Queen mattress (Allswell)", "price": 150, "wasPrice": 225 },
         { "id": "bed-pillows", "name": "Pillows (Allswell pair + down extra)", "price": 68 },
         { "id": "bed-bedding", "name": "Bedding (cotton, high quality, pair)", "price": 45 }
       ]
